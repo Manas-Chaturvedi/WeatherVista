@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherVista</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6190E8, #A7BFE8); /* Gradient background */
+            color: #333;
+        }
+
+        .weather-container {
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white container */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        .weather-container h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            font-size: 16px;
+        }
+
+        .input-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-group button:hover {
+            background-color: #2980b9;
+        }
+
+        .weather-info {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .weather-info h2 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .weather-info p {
+            margin: 8px 0;
+            font-size: 18px;
+        }
+
+        .weather-info p strong {
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="weather-container">
+        <h1>WeatherVista</h1>
+        <div class="input-group">
+            <input type="text" id="locationInput" placeholder="Enter location">
+            <button id="getTemperature">Get Weather</button>
+        </div>
+        <div class="weather-info" id="weatherDisplay">
+            <h2>Weather Details</h2>
+            <p><strong>Location:</strong> <span id="locationName"></span></p>
+            <p><strong>Temperature:</strong> <span id="tempValue"></span> °C</p>
+            <p><strong>Humidity:</strong> <span id="humidityValue"></span> %</p>
+            <p><strong>Description:</strong> <span id="descriptionValue"></span></p>
+        </div>
+        <div class="error-message" id="errorDisplay"></div>
+    </div>
+
+    <script>
+        const apiKey = 'd743202004e543c78b3131005250803';
+        const locationInput = document.getElementById('locationInput');
+        const getTemperatureButton = document.getElementById('getTemperature');
+        const weatherDisplay = document.getElementById('weatherDisplay');
+        const locationName = document.getElementById('locationName');
+        const tempValue = document.getElementById('tempValue');
+        const humidityValue = document.getElementById('humidityValue');
+        const descriptionValue = document.getElementById('descriptionValue');
+        const errorDisplay = document.getElementById('errorDisplay');
+
+        getTemperatureButton.addEventListener('click', () => {
+            const location = locationInput.value;
+            if (location) {
+                fetchWeather(location);
+            } else {
+                errorDisplay.textContent = 'Please enter a location.';
+            }
+        });
+
+        async function fetchWeather(location) {
+            try {
+                const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    errorDisplay.textContent = data.error.message;
+                    weatherDisplay.style.display = 'none';
+                } else {
+                    locationName.textContent = data.location.name + ", " + data.location.country;
+                    tempValue.textContent = data.current.temp_c;
+                    humidityValue.textContent = data.current.humidity;
+                    descriptionValue.textContent = data.current.condition.text;
+                    weatherDisplay.style.display = 'block';
+                    errorDisplay.textContent = '';
+                }
+            } catch (error) {
+                errorDisplay.textContent = 'An error occurred. Please try again.';
+                weatherDisplay.style.display = 'none';
+                console.error('Fetch error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
